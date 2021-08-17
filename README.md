@@ -1,4 +1,4 @@
-# Fabrik-Ik-bone and bone Converter-Godot
+# Fabrik-Ik and bone Converter-Godot
 
 still messed up, but that's okay for a start!
 
