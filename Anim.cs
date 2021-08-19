@@ -6,9 +6,8 @@ using System.Collections.Generic;
 public class Anim : Spatial
 {
 	[Export]
-	public bool start = false;
-	[Export]
-	public bool gettingpos = false;
+	public bool start = true;
+	bool gettingpos = true;
 
 	[Export]
 	NodePath skeleton_path;
@@ -82,7 +81,7 @@ public class Anim : Spatial
 					if (bone_name.Equals(""))
 						bone_name = skeleton.GetBoneName(j);
 					
-				//	bone_nodes[j] = GetNode(bone_name) as Spatial;
+					bone_nodes[j] = GetNode(bone_name) as Spatial;
 				}
 				Transform tsk = bone_nodes[j].GlobalTransform;
 				tsk = get_bone_transform(j);
