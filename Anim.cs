@@ -6,8 +6,9 @@ using System.Collections.Generic;
 public class Anim : Spatial
 {
 	[Export]
-	public bool start = true;
-	bool gettingpos = true;
+	public bool start = false;
+	[Export]
+	public bool gettingpos_rest = true;
 
 	[Export]
 	NodePath skeleton_path;
@@ -31,9 +32,9 @@ public class Anim : Spatial
 		}
 
 		// Set all of the bone IDs in bone_IDs, if they are not already made
-		if(gettingpos)
+		if(gettingpos_rest)
 		{
-			gettingpos = false;
+			gettingpos_rest = false;
 			for (int j = 0; j < skeleton.GetBoneCount(); j++)
 			{
 				bone_IDs[skeleton.GetBoneName(j)] = skeleton.FindBone(skeleton.GetBoneName(j));
@@ -44,17 +45,17 @@ public class Anim : Spatial
 				{
 					for (int k = boi.Count - 1; k >= 0; k--)
 					{
-						if(k== boi.Count - 1)
-						bone_name = skeleton.GetBoneName(boi[k]);
+						if (k == boi.Count - 1)
+							bone_name = skeleton.GetBoneName(boi[k]);
 						else
 							bone_name += "/" + skeleton.GetBoneName(boi[k]);
 					}
 				}
 				string bone_name_last = "";
 				if (bone_name.Equals(""))
-				 bone_name_last = skeleton.GetBoneName(j);
+					bone_name_last = skeleton.GetBoneName(j);
 				else
-				 bone_name_last = bone_name+"/"+skeleton.GetBoneName(j);
+					bone_name_last = bone_name + "/" + skeleton.GetBoneName(j);
 
 				//	GD.Print(bone_name);
 				//	GD.Print(bone_name_last);
@@ -63,30 +64,38 @@ public class Anim : Spatial
 					Spatial new_node = new Spatial();
 					bone_nodes[j] = new_node;
 					bone_nodes[j].Name = skeleton.GetBoneName(j);
+ 
+					Spatial rest_node = new Spatial();
+					rest_node.Name = skeleton.GetBoneName(j);
 
 					if (bone_name.Equals(""))
 					{
 						AddChild(bone_nodes[j]);
+						GetParent().GetNode("Spatial_rest").AddChild(rest_node);
 					}
 					else
 					{
 						//		GD.Print(bone_name);
 						GetNode(bone_name).AddChild(bone_nodes[j]);
+						GetParent().GetNode("Spatial_rest").GetNode(bone_name).AddChild(rest_node);
 					}
 					bone_nodes[j].Owner = Owner;
+					rest_node.Owner = Owner;
+					Transform tsk = bone_nodes[j].GlobalTransform;
+					tsk = get_bone_transform(j);
+					//		tsk.basis.Scale = bone_nodes[j].GlobalTransform.basis.Scale;
+					bone_nodes[j].GlobalTransform = tsk;
+					rest_node.GlobalTransform = tsk;
 				}
 				else
 				{
 					//	GD.Print(bone_name);
 					if (bone_name.Equals(""))
 						bone_name = skeleton.GetBoneName(j);
-					
-					bone_nodes[j] = GetNode(bone_name) as Spatial;
+
+					bone_nodes[j] = GetNode(bone_name_last) as Spatial;
+					bone_nodes[j].GlobalTransform = (GetParent().GetNode("Spatial_rest").GetNode(bone_name_last) as Spatial).GlobalTransform;
 				}
-				Transform tsk = bone_nodes[j].GlobalTransform;
-				tsk = get_bone_transform(j);
-		//		tsk.basis.Scale = bone_nodes[j].GlobalTransform.basis.Scale;
-				bone_nodes[j].GlobalTransform = tsk;		
 			}
 		}
 		if(start) 
